@@ -25,7 +25,7 @@ export default function QuestionForm(props: QuestionFormProps): ReactElement {
         <input
           className="rounded-b-lg bg-white p-4  text-black outline-none"
           name="question"
-          placeholder="Leave me a question..."
+          placeholder="Leave a question..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />
