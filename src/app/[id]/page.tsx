@@ -1,5 +1,10 @@
 import {createClient} from "@supabase/supabase-js";
 import Link from "next/link";
+import {revalidatePath} from "next/cache";
+
+import QuestionCard from "../components/QuestionCard";
+import AnswerCard from "../components/AnswerCard";
+import AnswerCardForm from "../components/AnswerForm";
 
 const supabaseUrl = "https://wlrzozwfqoiceemzmjkj.supabase.co";
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -16,20 +21,43 @@ async function getQuestion(id: string) {
   return question;
 }
 
+async function getAnswers(idQuestion: string) {
+  const answers = await supabase
+    .from("answers")
+    .select()
+    .eq("idQuestion", idQuestion)
+    .then(({data}) => data as {id: string; text: string}[]);
+
+  return answers;
+}
+
 export default async function Question({params: {id}}: {params: {id: string}}) {
-  // const [inputValue, setInputValue] = useState("");
-  // const isButtonDisabled = inputValue === "";
   const question = await getQuestion(id);
+  const answers = await getAnswers(id);
+
+  async function handleSubmit(formData: FormData) {
+    "use server";
+    const answer = formData.get("answer");
+
+    await supabase.from("answers").insert({idQuestion: id, text: answer});
+
+    revalidatePath(`/[id]`);
+  }
 
   return (
-    <article className="grid grid-cols-6 gap-4">
+    <article className="grid gap-4">
       <Link className="rounded-lg border text-center" href="/">
         ← Atras
       </Link>
-      <section key={question.id} className="col-span-6 grid">
-        <p className="rounded-t-lg bg-purple-400 p-4 text-xl">Pregunta #{question.id}</p>
-        <p className="rounded-b-lg bg-white p-4 font-semibold text-black">{question.text}</p>
-      </section>
+      <QuestionCard question={question} />
+      <hr className=" col-span-6 my-4 opacity-30" />
+      <AnswerCardForm handleSubmit={handleSubmit} />
+      <p className="col-span-6 text-center text-lg">↓ Answers ↓</p>
+      {answers.length === 0 ? (
+        <p className=" col-span-6 text-center font-bold"> - No answers yet -</p>
+      ) : (
+        answers.map((answer, index) => <AnswerCard key={answer.id} answer={answer} index={index} />)
+      )}
     </article>
   );
 }
