@@ -26,7 +26,7 @@ async function getAnswers(idQuestion: string) {
     .from("answers")
     .select()
     .eq("idQuestion", idQuestion)
-    .then(({data}) => data as {id: string; text: string}[]);
+    .then(({data}) => data as {id: string; text: string; created_at: Date}[]);
 
   return answers;
 }
