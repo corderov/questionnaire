@@ -1,14 +1,11 @@
-import {createClient} from "@supabase/supabase-js";
 import Link from "next/link";
 import {revalidatePath} from "next/cache";
+
+import supabase from "@/utils/supabase";
 
 import QuestionCard from "../components/QuestionCard";
 import AnswerCard from "../components/AnswerCard";
 import AnswerCardForm from "../components/AnswerForm";
-
-const supabaseUrl = "https://wlrzozwfqoiceemzmjkj.supabase.co";
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey!);
 
 async function getQuestion(id: string) {
   const question = await supabase
